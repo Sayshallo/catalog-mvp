@@ -84,7 +84,7 @@ async def create_product(
         raise HTTPExeption(status_code = 400, detail = "Атрибут image не был задан!")
 
     if len(content) > MAX_IMAGE_SIZE:
-        raise HTTPExeption(status_code = 412, detail = "Атрибут image не должен весить более 20МБ!")
+        raise HTTPExeption(status_code = 413, detail = "Атрибут image не должен весить более 20МБ!")
 
     extension_by_type = {
         "image/jpeg" : "jpg",
