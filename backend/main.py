@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
-from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPExeption
+from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException
 
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.concurrency import run_in_threadpool
+from starlette.concurrency import run_in_threadpool
 
 from .database import get_db, engine, Base
 from .models import Product
@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    await engine.dispose
+    await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
 
@@ -45,15 +45,15 @@ app.add_middleware(
 @app.get("/api/products", response_model = list[ProductOut])
 async def list_products( db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Product).where(Product.is_active.is_(True)).order_by(product.created_at.desc())
+        select(Product).where(Product.is_active.is_(True)).order_by(Product.created_at.desc())
     )
 
-    product = result.scalars().all()
+    products = result.scalars().all()
 
     response = []
 
     for p in products:
-        image_url = await run_in_threadpool(get_presigned_url, product.image_key)
+        image_url = await run_in_threadpool(get_presigned_url, p.image_key)
 
         response.append(ProductOut(
             id = p.id,
@@ -73,18 +73,18 @@ async def create_product(
     title = title.strip()
 
     if not title:
-        raise HTTPExeption(status_code = 422, detail = "Атрибут title не был задан!")
+        raise HTTPException(status_code = 422, detail = "Атрибут title не был задан!")
 
     if image.content_type not in ALLOWED_CONTENT_TYPES:
-        raise HTTPExeption(status = 415, detail = "Поддерживаются только изображения типа: JPEG, PNG и WebP")
+        raise HTTPException(status_code = 415, detail = "Поддерживаются только изображения типа: JPEG, PNG и WebP")
 
     content = await image.read()
 
     if not content:
-        raise HTTPExeption(status_code = 400, detail = "Атрибут image не был задан!")
+        raise HTTPException(status_code = 400, detail = "Атрибут image не был задан!")
 
     if len(content) > MAX_IMAGE_SIZE:
-        raise HTTPExeption(status_code = 413, detail = "Атрибут image не должен весить более 20МБ!")
+        raise HTTPException(status_code = 413, detail = "Атрибут image не должен весить более 20МБ!")
 
     extension_by_type = {
         "image/jpeg" : "jpg",
@@ -104,11 +104,11 @@ async def create_product(
         await db.refresh(product)
     except Exception:
         await db.rollback()
-        raise HTTPExeption(statuse_code = 500, detail = "Произошла ошибка при добавлении товара...")
+        raise HTTPException(status_code = 500, detail = "Произошла ошибка при добавлении товара...")
 
     image_url = await run_in_threadpool(get_presigned_url, key)
 
-    return Product(
+    return ProductOut(
         id = product.id,
         title = product.title,
         image_url = image_url,

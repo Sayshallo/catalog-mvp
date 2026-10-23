@@ -1,1 +1,11 @@
 .env
+.env.*
+
+__pychache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+.vscode/*
+Thumbs.db

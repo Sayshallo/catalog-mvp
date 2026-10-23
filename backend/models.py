@@ -7,7 +7,7 @@ from .database import Base
 class Product(Base):
     __tablename__ = "products"
 
-    id: Mapped[int] = mapped_column(Integer, primary_kay = True, index = True)
+    id: Mapped[int] = mapped_column(Integer, primary_key = True, index = True)
     title: Mapped[str] = mapped_column(String(255), nullable = False)
     image_key: Mapped[str] = mapped_column(String(255), nullable = False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable = False, default = True)

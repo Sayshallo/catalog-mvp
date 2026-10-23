@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 from io import BytesIO
-from minio import minio
+from minio import Minio
 from minio.error import S3Error
 
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "minio:9000")
@@ -38,7 +38,7 @@ def upload_file(
         MINIO_BUCKET,
         object_name,
         BytesIO(data),
-        lenght = len(data),
+        length = len(data),
         content_type=content_type
     )
 
@@ -46,7 +46,7 @@ def get_presigned_url(
         object_name: str,
         expires_seconds: int = 3600
 ) -> str:
-    return minio_client.get_presigned_object(
+    return minio_client.presigned_get_object(
         MINIO_BUCKET,
         object_name,
         expires = timedelta(seconds = expires_seconds)

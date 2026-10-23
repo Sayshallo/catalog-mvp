@@ -1,10 +1,10 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Filed, filed_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class ProductCreate(BaseModel):
-    title: str = Filed(min_lenght = 1, max_lenght = 255)
+    title: str = Field(min_length = 1, max_length = 255)
 
-    @filed_validator("title")
+    @field_validator("title")
     @classmethod
     def validate_title(cls, value:str) -> str:
         value = value.strip()
