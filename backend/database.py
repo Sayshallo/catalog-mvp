@@ -25,6 +25,6 @@ async_session = async_sessionmaker(
 class Base(DeclarativeBase):
     pass
 
-async def get_db():
+async def get_db() -> AsyncIterator[AsyncSession]:
     async with async_session() as session:
         yield session
