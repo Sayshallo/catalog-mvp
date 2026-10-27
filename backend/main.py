@@ -3,8 +3,9 @@ from uuid import uuid4
 import logging
 
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException, Header
-
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.concurrency import run_in_threadpool
@@ -12,7 +13,7 @@ from starlette.concurrency import run_in_threadpool
 from .database import get_db, engine, Base
 from .models import Product
 from .schemas import ProductOut
-from .s3_client import ensure_bucket, upload_file, get_presigned_url, delete_file
+from .s3_client import ensure_bucket, upload_file, get_presigned_url, delete_file, get_image_object, MINIO_BUCKET, minio_client
 
 from io import BytesIO
 from PIL import Image, UnidentifiedImageError
@@ -147,4 +148,47 @@ async def create_product(
         title = product.title,
         image_url = image_url,
         created_at = product.created_at
+    )
+
+@app.get("/api/products/{product_id}/image")
+async def get_product_image(product_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Product).where(Product.id == product_id, Product.is_active.is_(True))
+    )
+
+    product = result.scalar_one_or_none()
+
+    if product is None: raise HTTPException(status_code = 404, detail = "Товар не найден...")
+
+    try: image = await run_in_threadpool(get_image_object, product.image_key)
+    except Exception: 
+        logger.exception(f"Не удалось получить изображение товара id[{product_id}]")
+        raise HTTPException(status_code = 404, detail = "Изображение не найдено")
+
+    def stream_image():
+        try:
+            while True:
+                chunk = image.read(64 * 1024)
+
+                if not chunk: break
+
+                yield chunk
+        finally:
+            image.clone()
+            image.release_conn()
+
+    content_type = "application/octet-stream"
+    image_key = product.image_key.lower()
+
+    if image_key.endswith((".jpg", ".jpeg")): content_type = "image/jpeg"
+    elif image_key.endswith(".png"): content_type = "image/png"
+    elif image_key.endswith(".webp"): content_type = "image/webp"
+
+    return StreamingResponse(
+        stream_image(),
+        media_type = content_type,
+        headers = {
+            "Cache-Control": "public, max-age=3600",
+            "X-Content-Type-Options": "nosniff"
+        }
     )

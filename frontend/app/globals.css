@@ -1,0 +1,120 @@
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --background: #f4f6fb;
+    --surface: #ffffff;
+    --text: #202638;
+    --muted: #687386;
+    --border: #e5e9f2;
+    --accent: #4568e8;
+}
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    background: var(--background);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+}
+
+main {
+    width: min(1100px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 40px 0 60px;
+}
+
+h1 {
+    margin: 0 0 28px;
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 750;
+    letter-spacing: -1px;
+}
+
+ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 18px !important;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgb(30 45 80 / 4%);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgb(30 45 80 / 9%);
+}
+
+li strong {
+    font-size: 17px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+li img {
+    display: block;
+    width: 100%;
+    height: 190px;
+    margin-top: 0 !important;
+    object-fit: contain;
+    border-radius: 10px;
+    background: #f8f9fc;
+}
+
+@media (max-width: 520px) {
+    main {
+        width: calc(100% - 24px);
+        padding-top: 24px;
+    }
+
+    ul {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    li {
+        padding: 12px !important;
+        border-radius: 12px;
+    }
+
+    li img {
+        height: 135px;
+    }
+
+    li strong {
+        font-size: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    li {
+        transition: none;
+    }
+
+    li:hover {
+        transform: none;
+    }
+}

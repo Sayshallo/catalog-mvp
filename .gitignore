@@ -9,3 +9,5 @@ venv/
 
 .vscode/*
 Thumbs.db
+node_modules/
+.next/

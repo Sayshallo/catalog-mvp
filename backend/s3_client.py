@@ -66,3 +66,9 @@ def get_presigned_url(
 
 def delete_file(object_name: str):
     minio_client.remove_object(MINIO_BUCKET, object_name)
+
+def get_image_object(object_name: str):
+    return minio_client.get_object(
+        MINIO_BUCKET,
+        object_name,
+    )

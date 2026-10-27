@@ -59,6 +59,8 @@ services:
       API_URL: http://backend:8000
       WEBAPP_URL: ${WEBAPP_URL}
       ADMIN_ID: ${ADMIN_ID}
+    extra_hosts:
+      - "api.telegram.org:149.154.167.220"
     depends_on:
       - backend
 
@@ -69,7 +71,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "3000:3000"
+      - "3002:3000"
 
 volumes:
   pgdata:
