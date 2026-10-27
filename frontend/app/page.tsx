@@ -12,7 +12,7 @@ export default async function CatalogPage() {
 
     return (
         <main>
-            <h1>Catalog</h1>
+            <h1>Каталог</h1>
             <ul>
                 {products.map((p: any) => (
                     <li key={p.id} style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px'}}>

@@ -12,7 +12,18 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   minio:
     image: pgsty/silo:latest
     command: server /data --console-address ":9001"
@@ -53,16 +64,29 @@ services:
 
   bot:
     build: ./bot
+    extra_hosts:
+      - "api.telegram.org:149.154.167.220"
+    ports:
+      - "127.0.0.1:8080:8080"
     environment:
       BOT_API_TOKEN: ${BOT_API_TOKEN}
       BOT_TOKEN: ${BOT_TOKEN}
       API_URL: http://backend:8000
       WEBAPP_URL: ${WEBAPP_URL}
       ADMIN_ID: ${ADMIN_ID}
-    extra_hosts:
-      - "api.telegram.org:149.154.167.220"
+      REDIS_URL: redis://redis:6379/0
+      WEBHOOK_URL: ${WEBHOOK_URL}
+      WEBHOOK_PATH: /telegram/webhook
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      WEB_SERVER_HOST: 0.0.0.0
+      WEB_SERVER_PORT: 8080
     depends_on:
-      - backend
+      backend:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    expose:
+      - "8080"
 
   frontend:
     build: ./frontend
@@ -76,3 +100,4 @@ services:
 volumes:
   pgdata:
   miniodata:
+  redisdata:

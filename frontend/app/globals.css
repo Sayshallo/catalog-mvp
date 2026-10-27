@@ -1,4 +1,3 @@
-
 * {
     box-sizing: border-box;
 }
@@ -38,6 +37,10 @@ h1 {
     letter-spacing: -1px;
 }
 
+
+
+
+
 ul {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -46,6 +49,9 @@ ul {
     padding: 0;
     list-style: none;
 }
+
+
+
 
 li {
     display: flex;
@@ -83,6 +89,9 @@ li img {
     border-radius: 10px;
     background: #f8f9fc;
 }
+
+
+
 
 @media (max-width: 520px) {
     main {

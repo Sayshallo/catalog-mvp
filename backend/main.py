@@ -174,7 +174,7 @@ async def get_product_image(product_id: int, db: AsyncSession = Depends(get_db))
 
                 yield chunk
         finally:
-            image.clone()
+            image.close()
             image.release_conn()
 
     content_type = "application/octet-stream"
